@@ -3,24 +3,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>[YOUR NAME]</title>
+  <title>Ayan Sivaram</title>
+  <meta name="description" content="Personal website">
 </head>
 <body>
   <main>
-    <h1>[YOUR NAME]</h1>
+    <h1>Ayan Sivaram</h1>
 
-    <p>[RESEARCH DESCRIPTION SENTENCE 1] [RESEARCH DESCRIPTION SENTENCE 2]</p>
+    <p>I'm a research intern at the <a href="https://www.thefai.org/">Foundation for American Innovation</a>.</p>
 
-    <section>
-      <h2>Selected writing</h2>
-      <ul>
-        <li>[WRITING TITLE 1]</li>
-        <li>[WRITING TITLE 2]</li>
-        <li>[WRITING TITLE 3]</li>
-      </ul>
-    </section>
+    <p>I'm also a research assistant at the <a href="https://forecastingresearch.org/">Forecasting Research Institute</a>.</p>
 
-    <p>Contact: [CONTACT EMAIL]</p>
+    <p>I'm interested in technology and philosophy.</p>
+
+    <p>Previously, I worked at JPMorgan and One Madison Group. <span id="graduation">I'm graduating from New York University in January 2027.</span></p>
+
+    <p>Contact: ayan[dot]sivaram[at]gmail[dot]com</p>
   </main>
+
+  <script>
+    var parts = {};
+    new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", year: "numeric", month: "numeric", day: "numeric" })
+      .formatToParts(new Date())
+      .forEach(function (part) { parts[part.type] = Number(part.value); });
+    var days = (Date.UTC(2027, 0, 18) - Date.UTC(parts.year, parts.month - 1, parts.day)) / 86400000;
+    var graduation = document.getElementById("graduation");
+    if (days > 0) {
+      graduation.textContent = "I'm graduating from New York University in " + days + (days === 1 ? " day." : " days.");
+    } else if (days <= 0) {
+      graduation.textContent = "I graduated from New York University.";
+    }
+  </script>
 </body>
 </html>
