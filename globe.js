@@ -323,6 +323,11 @@
   canvas.addEventListener("pointerleave", function () { setHover(-1); });
   canvas.addEventListener("click", function (event) { pinned = pick(event); refresh(); });
   window.addEventListener("resize", resize);
+  // Rotating a phone can fire "resize" before the new layout exists, so the canvas's
+  // own size and the orientation are watched as well.
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas);
+  var portrait = window.matchMedia("(orientation: portrait)");
+  if (portrait.addEventListener) portrait.addEventListener("change", resize);
 
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
