@@ -8,6 +8,7 @@
 
   var TILT = 20 * Math.PI / 180;
   var YAW_PER_SECOND = 0.75 * Math.PI / 180;
+  var ROLL = 65 * Math.PI / 180;
   var PICK_RADIUS = 12;
   var J2 = 1.082616e-3;
   var XKE = 0.07436691613;
@@ -86,6 +87,7 @@
     uniform vec4 frame;
     uniform vec4 view;
     uniform vec2 sizes;
+    uniform vec2 roll;
     uniform float highlight;
     uniform float layer;
     uniform float ink;
@@ -96,7 +98,7 @@
       float y = position.x * view.y + position.y * view.x;
       float up = y * view.w + position.z * view.z;
       float near = position.z * view.w - y * view.z;
-      gl_Position = vec4(x * frame.x + frame.z, up * frame.y + frame.w, 0.0, 1.0);
+      gl_Position = vec4((x * roll.x - up * roll.y) * frame.x + frame.z, (x * roll.y + up * roll.x) * frame.y + frame.w, 0.0, 1.0);
       gl_PointSize = info.x < 0.5 ? sizes.x : sizes.y;
       glyph = info.x;
       if (layer < 0.5) {
@@ -133,7 +135,7 @@
   gl.useProgram(program);
 
   var uniforms = {};
-  ["frame", "view", "sizes", "highlight", "layer", "edge", "ink"].forEach(function (name) {
+  ["frame", "view", "sizes", "roll", "highlight", "layer", "edge", "ink"].forEach(function (name) {
     uniforms[name] = gl.getUniformLocation(program, name);
   });
   var positionSlot = gl.getAttribLocation(program, "position");
@@ -151,12 +153,15 @@
   var width, height, scale, centerX, centerY;
   var yaw = 0, cosYaw = 1, sinYaw = 0;
   var cosTilt = Math.cos(TILT), sinTilt = Math.sin(TILT);
+  var cosRoll = 1, sinRoll = 0;
   var hover = -1, pinned = -1, highlight = -1, dirty = true;
 
   function resize() {
     var rect = canvas.getBoundingClientRect();
     var ratio = Math.min(window.devicePixelRatio || 1, 3);
     var shrink = 1;
+    cosRoll = 1;
+    sinRoll = 0;
     width = rect.width;
     height = rect.height;
     canvas.width = Math.round(width * ratio);
@@ -167,6 +172,13 @@
       var room = width - textEdge;
       centerX = textEdge + room / 2;
       scale = Math.min(room / 2 / 6.9, height * 0.5 / 4.6);
+    } else if (height > width * 1.2) {
+      // On a tall screen the ring is rolled onto the diagonal, where it can be drawn larger.
+      cosRoll = Math.cos(ROLL);
+      sinRoll = Math.sin(ROLL);
+      centerX = width / 2;
+      scale = Math.min(width / 2 / Math.hypot(7.1 * cosRoll, 2.6 * sinRoll), height / 2 / Math.hypot(7.1 * sinRoll, 2.6 * cosRoll));
+      shrink = Math.min(1, Math.max(0.6, scale / 48));
     } else {
       centerX = width / 2;
       scale = Math.min(width / 2 / 6.9, height / 2 / 4.6);
@@ -179,6 +191,7 @@
     gl.uniform2f(uniforms.sizes, dot < 1.5 ? 1.5 : Math.round(dot), glyph);
     gl.uniform1f(uniforms.edge, Math.max(1, Math.round(ratio * shrink)) / glyph);
     gl.uniform1f(uniforms.ink, Math.min(0.6, Math.max(0.3, scale / 120)));
+    gl.uniform2f(uniforms.roll, cosRoll, sinRoll);
     gl.uniform4f(uniforms.frame, 2 * scale / width, 2 * scale / height, 2 * centerX / width - 1, 1 - 2 * centerY / height);
     dirty = true;
   }
@@ -248,7 +261,8 @@
       var ry = wx * sinYaw + wy * cosYaw;
       var vy = ry * sinTilt + wz * cosTilt;
       if (wz * sinTilt - ry * cosTilt < 0 && vx * vx + vy * vy < 1) continue;
-      var dx = centerX + vx * scale - px, dy = centerY - vy * scale - py;
+      var sx = vx * cosRoll - vy * sinRoll, sy = vx * sinRoll + vy * cosRoll;
+      var dx = centerX + sx * scale - px, dy = centerY - sy * scale - py;
       var distance = dx * dx + dy * dy;
       if (distance < bestDistance) {
         bestDistance = distance;
