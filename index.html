@@ -26,6 +26,13 @@
     @media (orientation: portrait) {
       #globe { height: min(170vw, 100vh); height: min(170vw, 100svh); }
     }
+    @media (orientation: landscape) and (min-width: 600px) and (max-width: 1099.98px), (orientation: landscape) and (min-width: 600px) and (max-height: 719.98px) {
+      :root { --side: min(27rem, 50vw); }
+      main, figcaption { box-sizing: border-box; width: var(--side); max-width: none; }
+      main { padding-top: 2rem; }
+      #map { margin: 0; }
+      #globe { position: fixed; top: 0; left: var(--side); width: calc(100% - var(--side)); height: 100vh; height: 100dvh; }
+    }
     @media (min-width: 1100px) and (min-height: 720px) {
       main { position: relative; z-index: 1; padding: 3.5rem 0 0 3.5rem; }
       #map { position: fixed; inset: 0; margin: 0; }

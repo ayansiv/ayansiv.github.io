@@ -172,7 +172,7 @@
       var room = width - textEdge;
       centerX = textEdge + room / 2;
       scale = Math.min(room / 2 / 6.9, height * 0.5 / 4.6);
-    } else if (height > width * 1.2) {
+    } else if (window.matchMedia("(orientation: portrait)").matches && height > width * 1.2) {
       // On a tall screen the ring is rolled onto the diagonal, where it can be drawn larger.
       cosRoll = Math.cos(ROLL);
       sinRoll = Math.sin(ROLL);
