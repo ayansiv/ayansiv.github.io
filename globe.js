@@ -312,7 +312,7 @@
     readout.classList.toggle("on", highlight >= 0);
     if (highlight >= 0) {
       var entry = source.groups[highlight - 1];
-      readout.textContent = entry[0] + ", " + entry[1] + ", " + totals[highlight - 1].toLocaleString("en-US") + " satellites.";
+      readout.textContent = entry[0] + ", " + entry[1] + ", " + totals[highlight - 1].toLocaleString("en-US") + " satellites";
     } else {
       readout.textContent = "";
     }
