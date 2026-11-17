@@ -197,7 +197,7 @@
   }
 
   var SEGMENTS = 180;
-  var lines = new Float32Array(4 * SEGMENTS * 6);
+  var lines = new Float32Array(4 * SEGMENTS * 6 + 12);
 
   function buildLines() {
     var used = 0;
@@ -216,6 +216,11 @@
     circle(1, 0, 0, 0, 1, 0, true);
     circle(1, 0, 0, 0, 0, 1, true);
     circle(0, 1, 0, 0, 0, 1, true);
+    // With the view rolled, north is no longer up, so the axis is drawn out past the poles.
+    if (sinRoll) {
+      lines.set([0, 0, 1.07, 0, 0, 1.55, 0, 0, -1.07, 0, 0, -1.55], used);
+      used += 12;
+    }
     return used / 3;
   }
 
