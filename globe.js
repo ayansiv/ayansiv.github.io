@@ -155,7 +155,8 @@
 
   function resize() {
     var rect = canvas.getBoundingClientRect();
-    var ratio = Math.min(window.devicePixelRatio || 1, 2);
+    var ratio = Math.min(window.devicePixelRatio || 1, 3);
+    var shrink = 1;
     width = rect.width;
     height = rect.height;
     canvas.width = Math.round(width * ratio);
@@ -168,12 +169,15 @@
       scale = Math.min(room / 2 / 6.9, height * 0.5 / 4.6);
     } else {
       centerX = width / 2;
-      scale = Math.min(width, height) / 2 / 4.6;
+      scale = Math.min(width / 2 / 6.9, height / 2 / 4.6);
+      shrink = Math.min(1, Math.max(0.6, scale / 48));
     }
     centerY = height / 2;
-    var glyph = 2 * Math.round(ratio * 2) + 1;
-    gl.uniform2f(uniforms.sizes, Math.max(1.5, ratio * 0.95), glyph);
-    gl.uniform1f(uniforms.edge, Math.max(1, Math.round(ratio)) / glyph);
+    // Sizes are whole device pixels so that points and strokes land on the pixel grid.
+    var glyph = 2 * Math.round(ratio * 2 * shrink) + 1;
+    var dot = ratio * 0.95 * shrink;
+    gl.uniform2f(uniforms.sizes, dot < 1.5 ? 1.5 : Math.round(dot), glyph);
+    gl.uniform1f(uniforms.edge, Math.max(1, Math.round(ratio * shrink)) / glyph);
     gl.uniform1f(uniforms.ink, Math.min(0.6, Math.max(0.3, scale / 120)));
     gl.uniform4f(uniforms.frame, 2 * scale / width, 2 * scale / height, 2 * centerX / width - 1, 1 - 2 * centerY / height);
     dirty = true;
